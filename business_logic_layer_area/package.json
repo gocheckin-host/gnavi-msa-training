@@ -6,7 +6,6 @@
   "license": "MIT",
   "dependencies": {
     "express": "~4.0.0",
-    "mongojs": "~0.18.0",
     "q":"1.1.x",
     "cfenv":"1.0.x",
     "body-parser":"1.10.x"
