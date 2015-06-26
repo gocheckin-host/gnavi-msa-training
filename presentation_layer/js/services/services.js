@@ -3,7 +3,7 @@ var gnaviAPIservice = function($injectHttp, $q) {
     $http = $injectHttp;
 
     var gnaviAPI = {};
-    var areaServiceURI = "http://gnavi-msa-bl-area.kolsch.mini.pez.pivotal.io";
+    // var areaServiceURI = "http://gnavi-msa-bl-area.kolsch.mini.pez.pivotal.io";
     // var catServiceURI = "http://gnavi-msa-bl-category.kolsch.mini.pez.pivotal.io";
     // var indexServiceURI = "http://gnavi-msa-bl-index.kolsch.mini.pez.pivotal.io";
 
@@ -146,18 +146,27 @@ var gnaviAPIservice = function($injectHttp, $q) {
     gnaviAPI.getCountByAreaCat = function(jsonParam) {
       var deferred = $q.defer();
 
-      $http({
-        method: 'POST', 
-        url: areaServiceURI + '/api/count_by_area_cat',
-        data: jsonParam,
-        headers: {'Content-Type': 'application/json'}
-      })
-      .success(function(data, status, headers, config) {
-        deferred.resolve(data);
-      })
-      .error(function(data, status, headers, config) {
-        deferred.reject(status + " " + data);
-      });
+      var dummy_data =
+        [
+          {
+            "key": "関西",
+            "values": [
+              [
+                "居酒屋",
+                9142
+              ],
+              [
+                "日本料理・郷土料理",
+                3598
+              ],
+              [
+                "すし・魚料理・シーフード",
+                4354
+              ]
+            ]
+          }
+        ];
+      deferred.resolve(dummy_data);
 
       return deferred.promise;
     };
@@ -165,18 +174,56 @@ var gnaviAPIservice = function($injectHttp, $q) {
     gnaviAPI.getCountByCatArea = function(jsonParam) {
       var deferred = $q.defer();
 
-      $http({
-        method: 'POST', 
-        url: catServiceURI + '/api/count_by_cat_area',
-        data: jsonParam,
-        headers: {'Content-Type': 'application/json'}
-      })
-      .success(function(data, status, headers, config) {
-        deferred.resolve(data);
-      })
-      .error(function(data, status, headers, config) {
-        deferred.reject(status + " " + data);
-      });
+      var dummy_data =
+        [
+          {
+            "key": "洋食",
+            "values": [
+              [
+                "関東",
+                2657
+              ],
+              [
+                "関西",
+                1229
+              ],
+              [
+                "中部",
+                840
+              ],
+              [
+                "九州",
+                954
+              ],
+              [
+                "北海道",
+                773
+              ],
+              [
+                "東北",
+                648
+              ],
+              [
+                "北陸",
+                498
+              ],
+              [
+                "中国",
+                562
+              ],
+              [
+                "四国",
+                228
+              ],
+              [
+                "沖縄",
+                228
+              ]
+            ]
+          }
+        ];
+
+      deferred.resolve(dummy_data);
 
       return deferred.promise;
     };
