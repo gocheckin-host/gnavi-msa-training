@@ -3,13 +3,16 @@
   Add reference to mongodbManager for mongodb connection.
 
   TODO_02
-  Create a connection by mongodbManager.
+  1. Create a function called "getPrefecturesPromise".
+  2. Use the mongodb connection to retrieve the prefecture list.
+  3. Export the function as "getPrefecturesPromise".
 
-  TODO_02
-  Close the connections.
-
-  TODO_04
-  Retrieve prefecture list with the mongodb connection.
+  TODO_03
+  1. Export a function called "getPrefectures".
+  2. Create a connection by mongodbManager.
+  3. Pass the connection to the function "getPrefecturesPromise".
+  4. Return the result from "getPrefecturesPromise" as http response.
+  5. Close the connection.
 
   For details, please reference business_logic_layer_area/controller/areasController.js
 */
