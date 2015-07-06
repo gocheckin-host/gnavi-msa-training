@@ -5,12 +5,14 @@
   "description": "Analytics for public Rest data source",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "1.10.x",
+    "cfenv": "1.0.x",
     "express": "~4.0.0",
-    "q":"1.1.x",
-    "cfenv":"1.0.x",
-    "body-parser":"1.10.x"
+    "json-mask": "^0.3.4",
+    "q": "1.1.x"
   },
   "scripts": {
+    "prestart": "npm install",
     "start": "node app.js"
   }
 }
