@@ -9,7 +9,7 @@
 
   TODO_03
   1. Export a function called "getPrefectures".
-  2. Create a connection by mongodbManager.
+  2. In this function, create a connection by mongodbManager.
   3. Pass the connection to the function "getPrefecturesPromise".
   4. Return the result from "getPrefecturesPromise" as http response.
   5. Close the connection.

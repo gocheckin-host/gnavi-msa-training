@@ -9,7 +9,7 @@
 
   TODO_03
   1. Export a function called "getCategories".
-  2. Create a connection by mongodbManager.
+  2. In this function, create a connection by mongodbManager.
   3. Pass the connection to the function "getCategoriesPromise".
   4. Return the result from "getCategoriesPromise" as http response.
   5. Close the connection.
