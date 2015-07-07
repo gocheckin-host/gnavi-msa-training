@@ -14,7 +14,7 @@
   4. Return the result from "getPrefecturesPromise" as http response.
   5. Close the connection.
 
-  For details, please reference business_logic_layer_area/controller/areasController.js
+  For details, please reference to business_logic_layer_area/controller/areasController.js.
 */
 
 var Q = require("q");

@@ -15,7 +15,6 @@
   3. Aggregate the result promises as one JSON and return it as a promise. The following is an example:
   Q.all(prom)
     .then(function (catAreaCountList) {
-        console.log("catAreaCountList found");
         d.resolve(catAreaCountList);
   });
 
@@ -26,7 +25,7 @@
 
   TODO_05
   1. Create a function called "getCountByCatArea".
-  2. Create a connection to the mongodb collection "area".
+  2. Create a connection to the mongodb collection "gnavi".
   3. Pass the connection, area list and category list to the "getCountByCatListAreaListPromise" function.
   4. Return the result from "getCountByCatListAreaListPromise" as http response.
   5. Close the connection.
@@ -34,7 +33,8 @@
 
   TODO_06
   1. Get rid of the dummy data.
-  
+
+  For details, please reference to business_logic_layer_area/controller/countByAreaCatController.js.
 */
 
 var Q = require("q");
