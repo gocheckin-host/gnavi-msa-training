@@ -4,4 +4,6 @@ applications:
   memory: 128M
   instances: 1
   host: gnavi-msa-bl-category
-
+  services:
+    - gnavi_mongo
+    

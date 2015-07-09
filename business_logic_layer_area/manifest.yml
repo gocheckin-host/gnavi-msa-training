@@ -4,4 +4,5 @@ applications:
   memory: 128M
   instances: 1
   host: gnavi-msa-bl-area
-  buildpack: staticfile_buildpack
+  services:
+    - gnavi_mongo
