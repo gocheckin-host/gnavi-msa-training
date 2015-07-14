@@ -1,49 +1,89 @@
-/*
-  TODO_01
-  1. Add reference to mongodbManager for mongodb connection.
-  2. Add reference to catsController.
-
-  TODO_02
-  1. Create a function called "getCountByCatPromise".
-  2. In this function, query count from collection "gnavi" with the parameter: "cat.category_l_code".
-  3. Return the result as a promise. The following is an example:
-  d.resolve({category_l_code: "RSFST01000" , category_l_name: "和食", count: 7860});
-
-  TODO_03
-  1. Create a function called "getCountByCatListPromise". 
-  2. Iteratively pass the connection, area, category to the "getCountByCatPromise" function.
-  3. Aggregate the result promises as one JSON and return it as a promise. The following is an example:
-  Q.all(prom)
-    .then(function (catCountList) {
-        d.resolve(catCountList);
-  });
-
-  TODO_04
-  1. Create a function called "getCountByCat".
-  2. Create a connection to the mongodb collections "gnavi", "category".
-  3. Pass the connection to the "catsController.getCategoriesPromise" function.
-  4. Pass the result category list to "getCountByCatListPromise".
-  4. Return the result from "getCountByCatListPromise" as http response.
-  5. Close the connection.
-  6. Export the function as "getCountByCat".
-
-
-  TODO_06
-  1. Get rid of the dummy data.
-  
-  For details, please reference to business_logic_layer_area/controller/countByAreaController.js.
-*/
-
-
 var Q = require("q");
-var dummy_data = require('../dummy_data/count_by_category.js');
+var mongodbManager = require('../utils/mongodbManager');
+var catsController = require("./catsController");
+
 
 /*************************************/
 /* REST API controller getCountByCat */
 exports.getCountByCat = function (req, res) {
+  console.log("Begin: getCountByCat");
+  console.log("Before getting catList: " + (new Date()).toISOString());
 
-  res.set('Content-Type', 'application/json');
-  res.send(dummy_data);
+  var db = mongodbManager.getConnection(["gnavi","category"]);
+
+  catsController.getCategoriesPromise(db)
+    .then(function(catList) {
+      console.log("After getting catList: " + (new Date()).toISOString());
+      console.log("catList:");
+      console.log(catList);
+      console.log("Before getting catCountList: " + (new Date()).toISOString());
+
+      return getCountByCatListPromise(db, catList);
+    })
+    .then(function(catCountList) {
+      console.log("After getting catCountList: " + (new Date()).toISOString());
+
+      catCountList.sort(function(a, b) {
+          return parseFloat(b.count) - parseFloat(a.count);
+      });
+
+      console.log("catCountList:");
+      console.log(catCountList);
+
+      res.set('Content-Type', 'application/json');
+      res.send(catCountList);
+    })
+    .catch(console.error)
+    .done(function() {
+      console.log("getCountByCat mongodb close");
+      db.close();
+      console.log("End: getCountByCat");
+    });
+  
+
+};
+
+var getCountByCatPromise = function(db, cat) {
+
+  var d = Q.defer();
+
+  db.gnavi.count({"code.category_code_l.0": cat.category_l_code}, function(err, count) {
+    if (count == 0)
+    {
+      d.resolve({category_l_code: cat.category_l_code , category_l_name: cat.category_l_name, count: count});
+    }
+    else if (err || !count)
+    {
+      console.log(" err:" + err);
+      d.reject(new Error(err));      
+    }
+    else 
+    {
+      d.resolve({category_l_code: cat.category_l_code , category_l_name: cat.category_l_name, count: count});
+    }
+  });
+
+  return d.promise;
+};
+
+var getCountByCatListPromise = function(db, catList) {
+  var d = Q.defer();
+
+  var prom = [];
+  
+  catList.category_l.forEach(function (cat) {
+    prom.push(getCountByCatPromise(db, cat));
+  });
+
+
+  Q.all(prom)
+    .then(function (catCountList) {
+        console.log("catCountList found");
+        d.resolve(catCountList);
+  });
+
+  return d.promise;
+
 };
 
 /* REST API controller getCountByCat */

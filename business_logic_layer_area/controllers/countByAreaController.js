@@ -1,115 +1,90 @@
 var Q = require("q");
+var mongodbManager = require('../utils/mongodbManager');
 var areasController = require("./areasController");
-/*
-  TODO_01
-  Add reference to mongodbManager for mongodb connection. The following is an example:
-
-  var mongodbManager = require('../utils/mongodbManager');
-
-*/
 
 
 /**************************************/
 /* REST API controller getCountByArea */
 exports.getCountByArea = function (req, res) {
-/*
-  TODO_02
-  1. Create a connection to the mongodb collection "gnavi" and "area". The following is an example:
+  console.log("Begin: getCountByArea");
+  console.log("Before getting areaList: " + (new Date()).toISOString());
+
   
-  var collections = ["col1","col2"];
-  var db = mongodbManager.getConnection(collections);
+  var db = mongodbManager.getConnection(["gnavi","area"]);
 
-  2. Pass the connection to the getCountByAreaListPromise function.
-*/
-
-  areasController.getAreasPromise()
+  areasController.getAreasPromise(db)
     .then(function(areaList) {
-        return getCountByAreaListPromise(areaList);
+        console.log("After getting areaList: " + (new Date()).toISOString());
+        console.log("areaList:");
+        console.log(areaList);
+        console.log("Before getting areaCountList: " + (new Date()).toISOString());
+
+        return getCountByAreaListPromise(db, areaList);
     })
     .then(function(areaCountList) {
+      console.log("After getting areaCountList: " + (new Date()).toISOString());
 
       areaCountList.sort(function(a, b) {
           return parseFloat(b.count) - parseFloat(a.count);
       });
+
+      console.log("areaCountList:");
+      console.log(areaCountList);
+      
 
       res.set('Content-Type', 'application/json');
       res.send(areaCountList);
     })
     .catch(console.error)
     .done(function() {
+      console.log("getCountByArea mongodb close");
+      db.close();
       console.log("End: getCountByArea");
     });
 
 };
 
-var getCountByAreaPromise = function(area) {
-/*
-  TODO_04
-  1. Add a function parameter for the db connection.
+var getCountByAreaPromise = function(db, area) {
 
-  2. Remove the dummy_data.
+  var d = Q.defer();
 
-  3. Instead use mongodb connection to get the count. Below is an example:
-  var query = {"code.areacode": "AREA110"};
-
-  db.mycollection.count(query, function(err, count) {
-    if(err || !count) 
+  db.gnavi.count({"code.areacode": area.area_code},function(err, count) {
+    if (count == 0)
     {
-      d.reject(new Error(err));
+      d.resolve({area_code: area.area_code , area_name: area.area_name, count: count});
+    }
+    else if (err || !count)
+    {
+      console.log(" err:" + err);
+      d.reject(new Error(err));      
     }
     else 
     {
-      var jsonObj = JSON.parse({area_code: "AREA110" , area_name: "関東", count: count});
-
-      d.resolve(jsonObj);
+      d.resolve({area_code: area.area_code , area_name: area.area_name, count: count});
     }
   });
-
-  For details reference to 
-    1) mongojs API
-    https://github.com/mafintosh/mongojs#dbcollectioncountquery-callback
-
-    2) mongodb API
-    http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html
-*/
-  var d = Q.defer();
-
-  d.resolve({area_code: area.area_code , area_name: area.area_name, count: randomInt(1000, 5000)});
 
   return d.promise;
 };
 
-var getCountByAreaListPromise = function(areaList) {
-/*
-  TODO_03
-  1. Add a function parameter for the db connection.
-
-  2. Pass the connection to the getCountByAreaPromise function.
-*/
+var getCountByAreaListPromise = function(db, areaList) {
   var d = Q.defer();
 
   var prom = [];
   areaList.area.forEach(function (area) {
-    prom.push(getCountByAreaPromise(area));
+    prom.push(getCountByAreaPromise(db, area));
   });
 
 
   Q.all(prom)
     .then(function (areaCountList) {
+        console.log("areaCountList found");
         d.resolve(areaCountList);
   });
 
   return d.promise;
 
 };
-
-/*
-  TODO_05
-  1. Remove the dummy function.
-*/
-var randomInt = function(low, high) {
-    return Math.floor(Math.random() * (high - low) + low);
-}
 
 /* REST API controller getCountByArea */
 /**************************************/

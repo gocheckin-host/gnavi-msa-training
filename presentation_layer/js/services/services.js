@@ -120,30 +120,19 @@ var gnaviAPIservice = function($injectHttp, $q) {
       return deferred.promise;
     };
 
-
-
     gnaviAPI.getCountByArea = function() {
       var deferred = $q.defer();
 
-      deferred.resolve(
-        [
-          {
-            "area_code": "AREA110",
-            "area_name": "関東",
-            "count": 136163
-          },
-          {
-            "area_code": "AREA120",
-            "area_name": "関西",
-            "count": 65042
-          },
-          {
-            "area_code": "AREA140",
-            "area_name": "九州",
-            "count": 36027
-          }
-        ]
-      );
+      $http({
+        method: 'GET', 
+        url: areaServiceURI + '/api/count_by_area'
+      })
+      .success(function(data, status, headers, config) {
+        deferred.resolve(data);
+      })
+      .error(function(data, status, headers, config) {
+        deferred.reject(status + " " + data);
+      });
 
       return deferred.promise;
     };
@@ -151,28 +140,20 @@ var gnaviAPIservice = function($injectHttp, $q) {
     gnaviAPI.getCountByCat = function() {
       var deferred = $q.defer();
 
-      deferred.resolve(
-        [
-          {
-            category_l_code: "RSFST09000",
-            category_l_name: "居酒屋",
-            count: 53665
-          },
-          {
-            category_l_code: "RSFST02000",
-            category_l_name: "日本料理・郷土料理",
-            count: 22079
-          },
-          {
-            category_l_code: "RSFST03000",
-            category_l_name: "すし・魚料理・シーフード",
-            count: 25735
-          }
-        ]
-      );
+      $http({
+        method: 'GET', 
+        url: catServiceURI + '/api/count_by_category'
+      })
+      .success(function(data, status, headers, config) {
+        deferred.resolve(data);
+      })
+      .error(function(data, status, headers, config) {
+        deferred.reject(status + " " + data);
+      });
 
       return deferred.promise;
     };
+
 
     gnaviAPI.getCountByAreaCat = function(jsonParam) {
       var deferred = $q.defer();
