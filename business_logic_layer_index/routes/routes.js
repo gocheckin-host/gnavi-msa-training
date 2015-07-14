@@ -11,7 +11,7 @@ var router = express.Router();
 /* REST API hello */
 router.route('/api')
   .get(function (req, res) {
-  res.send({routes: jsonmask(router.stack,"path,route/stack/method)") });
+  res.send({routes: jsonmask(router.stack,"route/(path,stack/method)") });
   console.log("REST API is running.");
 });
 /* REST API hello */
