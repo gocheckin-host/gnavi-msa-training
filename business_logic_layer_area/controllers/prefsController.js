@@ -1,32 +1,51 @@
-/*
-  TODO_01
-  Add reference to mongodbManager for mongodb connection.
-
-  TODO_02
-  1. Create a function called "getPrefecturesPromise".
-  2. Use the mongodb connection to retrieve the prefecture list.
-  3. Export the function as "getPrefecturesPromise".
-
-  TODO_03
-  1. Export a function called "getPrefectures".
-  2. In this function, create a connection by mongodbManager.
-  3. Pass the connection to the function "getPrefecturesPromise".
-  4. Return the result from "getPrefecturesPromise" as http response.
-  5. Close the connection.
-
-  For details, please reference to business_logic_layer_area/controller/areasController.js.
-*/
-
 var Q = require("q");
-var dummy_data = require('../dummy_data/prefectures.js');
+var mongodbManager = require('../utils/mongodbManager');
+
+
 
 /**************************************/
 /* REST API controller getPrefectures */
 exports.getPrefectures = function (req, res) {
-  res.set('Content-Type', 'application/json');
-  res.send(dummy_data);
+  console.log("Begin: getPrefectures");
+  console.log("Before getting prefectureList: " + (new Date()).toISOString());
+
+  var db = mongodbManager.getConnection(["prefecture"]);
+  
+  getPrefecturesPromise(db)
+    .then(function(prefectureList) {
+      console.log("After getting prefectureList: " + (new Date()).toISOString());
+      console.log("prefectureList:");
+      console.log(prefectureList);
+
+      res.set('Content-Type', 'application/json');
+      res.send(prefectureList);
+    })
+    .catch(console.error)
+    .done(function() {
+      console.log("getPrefectures mongodb close");
+      db.close();
+      console.log("End: getPrefectures");
+    });
 };
 
+var getPrefecturesPromise = function(db) {
+  var d = Q.defer();
+
+  db.prefecture.findOne(function(err, prefectureList) {
+    if(err || !prefectureList) 
+    {
+      d.reject(new Error(err));
+    }
+    else 
+    {
+      console.log("prefectureList found");
+      d.resolve(prefectureList);
+
+    }
+  });
+
+  return d.promise;
+};
 
 /* REST API controller getPrefectures */
 /**************************************/
