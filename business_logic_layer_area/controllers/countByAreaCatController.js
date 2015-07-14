@@ -1,101 +1,77 @@
 var Q = require("q");
-/*
-  TODO_01
-  Add reference to mongodbManager for mongodb connection. The following is an example:
+var mongodbManager = require('../utils/mongodbManager');
 
-  var mongodbManager = require('../utils/mongodbManager');
-
-*/
 
 /*****************************************/
 /* REST API controller getCountByAreaCat */
 exports.getCountByAreaCat = function (req, res) {
-console.log("**temp**");
-console.log(req.body);
-console.log("**temp**");
-/*
-  TODO_02
-  1. Create a connection to the mongodb collection "gnavi". The following is an example:
-  
-  var collections = ["col1","col2"];
-  var db = mongodbManager.getConnection(collections);
+  console.log("Begin: getCountByAreaCat");
+  console.log("Before getting areaCatCountList: " + (new Date()).toISOString());
 
-  2. Pass the connection to the getCountByAreaListCatListPromise function.
-*/
+  var db = mongodbManager.getConnection(["gnavi"]);
 
-  getCountByAreaListCatListPromise(req.body.areaList ,req.body.catList )
+  getCountByAreaListCatListPromise(db, req.body.areaList ,req.body.catList )
     .then(function(areaCatCountList) {
+      console.log("After getting areaCatCountList: " + (new Date()).toISOString());
+      console.log("areaCatCountList:");
+      console.log(JSON.stringify(areaCatCountList));
+
       res.set('Content-Type', 'application/json');
       res.send(areaCatCountList);
     })
     .catch(console.error)
     .done(function() {
-/*
-  TODO_03
-  1. Close the connection. The following is an example:
-  
-  db.close();
-*/
+      console.log("getCountByAreaCat mongodb close");
+      db.close();
       console.log("End: getCountByAreaCat");
     });
   
 
 };
 
-var getCountByAreaCatPromise = function(area, cat) {
+var getCountByAreaCatPromise = function(db, area, cat) {
+  // console.log("area:");
+  // console.log(area);
+
+  // console.log("cat:");
+  // console.log(cat);
+
   var d = Q.defer();
 
-/*
-  TODO_06
-  1. Add a function parameter for the db connection
-
-  2. Remove the dummy_data.
-
-  3. Instead use mongodb connection to get the count. Below is an example:
-  var query = {"code.category_code_l.0": "RSFST01000", "code.areacode": "AREA110"};
-
-  db.mycollection.count(query, function(err, count) {
-    if(err || !count) 
+  db.gnavi.count({"code.category_code_l.0": cat.category_l_code, "code.areacode": area.area_code}, function(err, count) {
+    if (count == 0)
     {
-      d.reject(new Error(err));
+      // d.resolve({area_code: area.area_code, area_name: area.area_name, category_l_code: cat.category_l_code , category_l_name: cat.category_l_name, count: count});
+      // d.resolve({category_l_code: cat.category_l_code , category_l_name: cat.category_l_name, count: count});
+      var jsonObj = JSON.parse('["' + cat.category_l_name + '",' + count + ']');
+
+      d.resolve(jsonObj);
+    }
+    else if (err || !count)
+    {
+      console.log(" err:" + err);
+      d.reject(new Error(err));      
     }
     else 
     {
-      var jsonObj = JSON.parse('["' + 'RSFST01000' + '",' + count + ']');
+      // d.resolve({area_code: area.area_code, area_name: area.area_name, category_l_code: cat.category_l_code , category_l_name: cat.category_l_name, count: count});
+      var jsonObj = JSON.parse('["' + cat.category_l_name + '",' + count + ']');
 
       d.resolve(jsonObj);
     }
   });
 
-  For details reference to 
-    1) mongojs API
-    https://github.com/mafintosh/mongojs#dbcollectioncountquery-callback
-
-    2) mongodb API
-    http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html
-
-*/
-  var jsonObj = JSON.parse('["' + cat.category_l_name + '",' + randomInt(100, 1000) + ']');
-
-  d.resolve(jsonObj);
-
   return d.promise;
 };
 
-var getCountByAreaCatListPromise = function(area, catList) {
-/*
-  TODO_05
-  1. Add a function parameter for the db connection.
-
-  2. Pass the connection to the getCountByAreaCatPromise function.
-*/
+var getCountByAreaCatListPromise = function(db, area, catList) {
   var d = Q.defer();
 
   var prom = [];
   
 
   catList.forEach(function (cat) {
-    prom.push(getCountByAreaCatPromise(area, cat));
+    prom.push(getCountByAreaCatPromise(db, area, cat));
   });    
 
 
@@ -111,20 +87,13 @@ var getCountByAreaCatListPromise = function(area, catList) {
 
 };
 
-var getCountByAreaListCatListPromise = function(areaList, catList) {
-/*
-  TODO_04
-  1. Add a function parameter for the db connection
-
-  2. Pass the connection to the getCountByAreaCatListPromise function.
-*/
-
+var getCountByAreaListCatListPromise = function(db, areaList, catList) {
   var d = Q.defer();
 
   var prom = [];
   
   areaList.forEach(function (area) {
-      prom.push(getCountByAreaCatListPromise(area, catList)); 
+      prom.push(getCountByAreaCatListPromise(db, area, catList)); 
   });
 
 
@@ -137,13 +106,5 @@ var getCountByAreaListCatListPromise = function(areaList, catList) {
   return d.promise;
 
 };
-
-/*
-  TODO_07
-  1. Remove the dummy function.
-*/
-var randomInt = function(low, high) {
-    return Math.floor(Math.random() * (high - low) + low);
-}
 /* REST API controller getCountByAreaCat */
 /*****************************************/
