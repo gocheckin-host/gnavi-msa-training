@@ -1,4 +1,5 @@
 var Q = require("q");
+var mongodbManager = require('../utils/mongodbManager');
 var areasController = require("./areasController");
 /*
   TODO_01
@@ -22,7 +23,9 @@ exports.getCountByArea = function (req, res) {
   2. Pass the connection to the getCountByAreaListPromise function.
 */
 
-  areasController.getAreasPromise()
+  var db = mongodbManager.getConnection(["gnavi","area"]);
+
+  areasController.getAreasPromise(db)
     .then(function(areaList) {
         return getCountByAreaListPromise(areaList);
     })

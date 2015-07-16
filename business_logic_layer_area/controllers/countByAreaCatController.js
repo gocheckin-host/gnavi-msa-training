@@ -10,9 +10,6 @@ var Q = require("q");
 /*****************************************/
 /* REST API controller getCountByAreaCat */
 exports.getCountByAreaCat = function (req, res) {
-console.log("**temp**");
-console.log(req.body);
-console.log("**temp**");
 /*
   TODO_02
   1. Create a connection to the mongodb collection "gnavi". The following is an example:
